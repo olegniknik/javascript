@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Уютный дом — Установка окон и остекление балконов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -119,14 +122,6 @@
             <strong>Решение:</strong> Установка шумозащитного стеклопакета. Снижение шума до 40 дБ.
           </div>
         </div>
-        <div class="problem-card" data-problem="old">
-          <div class="problem-card__icon">🏚️</div>
-          <h3 class="problem-card__title">Старые окна</h3>
-          <p class="problem-card__desc">Деревянные рамы рассохлись, краска облупилась, фурнитура не работает.</p>
-          <div class="problem-card__solution">
-            <strong>Решение:</strong> Полная замена на современные ПВХ-окна с энергосберегающим стеклопакетом.
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -167,6 +162,17 @@
             <li>Демонтаж старого пакета</li>
             <li>Установка нового</li>
             <li>Герметизация</li>
+          </ul>
+          <button class="btn btn--primary" data-modal="booking">Записаться</button>
+        </div>
+        <div class="service-card">
+          <div class="service-card__price">от 1 000 ₽</div>
+          <h3 class="service-card__title">Ремонт и замена фурнитуры</h3>
+          <ul class="service-card__list">
+            <li>Замена ручек и петель</li>
+            <li>Ремонт запорных механизмов</li>
+            <li>Замена ножниц и откидных механизмов</li>
+            <li>Подбор фурнитуры под ваш профиль</li>
           </ul>
           <button class="btn btn--primary" data-modal="booking">Записаться</button>
         </div>
@@ -328,32 +334,18 @@
     <div class="modal__overlay"></div>
     <div class="modal__content">
       <button class="modal__close" aria-label="Закрыть">×</button>
-      <h2 class="modal__title">Запись на ремонт</h2>
-      <p class="modal__subtitle">Оставьте заявку — мы перезвоним в течение 15 минут</p>
+      <h2 class="modal__title">Оставить заявку</h2>
+      <p class="modal__subtitle">Укажите имя и телефон — мы перезвоним</p>
       <form class="form" id="bookingForm">
         <div class="form__group">
           <label class="form__label" for="name">Ваше имя</label>
-          <input class="form__input" type="text" id="name" name="name" placeholder="Иван Иванов" required>
+          <input class="form__input" type="text" id="name" name="name" placeholder="Ваше имя" required>
         </div>
         <div class="form__group">
           <label class="form__label" for="phone">Телефон</label>
           <input class="form__input" type="tel" id="phone" name="phone" placeholder="+7 (___) ___-__-__" required>
         </div>
-        <div class="form__group">
-          <label class="form__label" for="problem">Опишите проблему</label>
-          <select class="form__input form__select" id="problem" name="problem">
-            <option value="">Выберите проблему</option>
-            <option value="draft">Дует из окна</option>
-            <option value="fog">Запотевание стёкол</option>
-            <option value="handle">Сломалась ручка</option>
-            <option value="close">Окно не закрывается</option>
-            <option value="noise">Шум с улицы</option>
-            <option value="old">Замена старых окон</option>
-            <option value="other">Другое</option>
-          </select>
-        </div>
-        <button class="btn btn--primary btn--lg btn--full" type="submit">Отправить заявку</button>
-        <p class="form__note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности</p>
+        <button class="btn btn--primary btn--lg btn--full" type="submit">Перезвоните мне</button>
       </form>
       <div class="form__success" id="formSuccess">
         <div class="form__success-icon">✅</div>
@@ -363,6 +355,6 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
