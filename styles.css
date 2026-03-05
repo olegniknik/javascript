@@ -497,6 +497,12 @@ body {
   text-align: center;
   transition: var(--transition);
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card .btn {
+  margin-top: auto;
 }
 
 .service-card:hover {
