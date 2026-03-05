@@ -71,6 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ── Accessories tabs ──
+  const accTabs = document.querySelectorAll('.accessories__tab');
+  const accPanels = document.querySelectorAll('.accessories__panel');
+
+  accTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      const wasActive = tab.classList.contains('accessories__tab--active');
+
+      accTabs.forEach(t => t.classList.remove('accessories__tab--active'));
+      accPanels.forEach(p => p.classList.remove('accessories__panel--active'));
+
+      if (!wasActive) {
+        tab.classList.add('accessories__tab--active');
+        const panel = document.querySelector(`.accessories__panel[data-panel="${target}"]`);
+        if (panel) panel.classList.add('accessories__panel--active');
+      }
+    });
+  });
+
   // ── Reviews carousel ──
   const track = document.getElementById('reviewsTrack');
   const cards = track ? Array.from(track.children) : [];
@@ -218,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Scroll reveal ──
   const fadeElements = document.querySelectorAll(
-    '.problem-card, .service-card, .review-card, .contact-item, .section-title, .section-subtitle'
+    '.problem-card, .service-card, .accessory-card, .review-card, .contact-item, .section-title, .section-subtitle'
   );
 
   fadeElements.forEach(el => el.classList.add('fade-in'));
