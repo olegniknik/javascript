@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+dist/
+booking-scaffold/node_modules/
+booking-scaffold/dist/
+booking-scaffold/prisma/dev.db
+booking-scaffold/prisma/dev.db-journal

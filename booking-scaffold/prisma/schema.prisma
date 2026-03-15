@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- User ---
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         String    @default("CLIENT")
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  clinics      Clinic[]
+  bookings     Booking[]
+  files        File[]
+
+  @@index([createdAt, id])
+}
+
+// --- Clinic ---
+model Clinic {
+  id          String    @id @default(cuid())
+  name        String
+  address     String?
+  phone       String?
+  description String?
+  ownerId     String
+  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  packages    Package[]
+  bookings    Booking[]
+
+  @@index([ownerId])
+}
+
+// --- Package ---
+model Package {
+  id               String    @id @default(cuid())
+  clinicId          String
+  clinic           Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  price_cents      Int
+  duration_minutes Int       @default(60)
+  active           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  bookings         Booking[]
+
+  @@index([clinicId])
+}
+
+// --- Booking ---
+model Booking {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId         String
+  package           Package       @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  clinicId          String
+  clinic            Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  start_at         DateTime
+  end_at           DateTime
+  status            String  @default("PENDING")
+  payment_status   String  @default("UNPAID")
+  stripe_payment_id String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  files             File[]
+
+  @@index([userId])
+  @@index([packageId])
+  @@index([clinicId])
+  @@index([createdAt, id])
+}
+
+// --- Lead (заявки с сайта, без регистрации) ---
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  problem   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// --- File ---
+model File {
+  id          String    @id @default(cuid())
+  ownerId     String
+  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookingId   String?
+  booking     Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  storage_key String
+  filename    String
+  mime        String
+  size        Int
+  url         String?
+  createdAt   DateTime  @default(now())
+
+  @@index([ownerId])
+  @@index([bookingId])
+}

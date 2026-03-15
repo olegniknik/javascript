@@ -233,8 +233,22 @@ body {
   transition: var(--transition);
 }
 
-.nav__link:hover::after {
+.nav__link:hover::after,
+.nav__link--active::after {
   width: 100%;
+}
+
+.nav__link--active {
+  color: var(--color-text);
+}
+
+.nav__btn.nav__link {
+  pointer-events: auto;
+  cursor: pointer;
+  min-width: 3rem;
+}
+.nav__btn.nav__link::after {
+  display: none;
 }
 
 .burger {
@@ -812,6 +826,23 @@ a.contact-item__value:hover {
   margin-top: 4px;
 }
 
+.footer__links {
+  display: flex;
+  gap: 12px;
+}
+.footer__link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-primary);
+  text-decoration: underline;
+  padding: 0;
+}
+.footer__link:hover {
+  color: var(--color-primary-hover);
+}
+
 .footer__copy {
   color: var(--color-text-muted);
   font-size: 0.875rem;
@@ -1105,4 +1136,62 @@ a.contact-item__value:hover {
     padding: 14px 28px;
     font-size: 1rem;
   }
+}
+
+/* Админка на сайте */
+.admin-section {
+  padding: 60px 0;
+  background: var(--color-bg-light);
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-section__head .section-title {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.admin-loading {
+  color: var(--color-text-muted);
+  padding: 24px 0;
+}
+
+.admin-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.admin-table-wrap th,
+.admin-table-wrap td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table-wrap th {
+  background: var(--color-surface);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.admin-table-wrap tr:last-child td {
+  border-bottom: none;
+}
+
+.form__error {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  min-height: 1.2em;
 }

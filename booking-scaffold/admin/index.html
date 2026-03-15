@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Админка — Booking</title>
+  <link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Экран входа -->
+    <div id="login-screen" class="screen">
+      <div class="login-card">
+        <h1>Вход в админку</h1>
+        <form id="login-form">
+          <label>Email</label>
+          <input type="email" id="login-email" value="admin@local.test" required>
+          <label>Пароль</label>
+          <input type="password" id="login-password" value="password123" required>
+          <p id="login-error" class="error"></p>
+          <button type="submit">Войти</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Основной интерфейс после входа -->
+    <div id="main-screen" class="screen hidden">
+      <header class="header">
+        <span class="title">Booking — Админка</span>
+        <span class="user" id="header-email"></span>
+        <button type="button" id="btn-logout">Выйти</button>
+      </header>
+      <nav class="tabs">
+        <button type="button" class="tab active" data-tab="users">Пользователи</button>
+        <button type="button" class="tab" data-tab="clinics">Организации</button>
+        <button type="button" class="tab" data-tab="packages">Услуги</button>
+        <button type="button" class="tab" data-tab="bookings">Заявки</button>
+      </nav>
+      <main class="content">
+        <section id="panel-users" class="panel active">
+          <h2>Пользователи</h2>
+          <div id="users-loading" class="loading">Загрузка…</div>
+          <div id="users-list" class="table-wrap"></div>
+          <div id="users-more" class="more"></div>
+        </section>
+        <section id="panel-clinics" class="panel">
+          <h2>Организации</h2>
+          <p class="hint">Места/компании, к которым привязаны услуги</p>
+          <div id="clinics-loading" class="loading">Загрузка…</div>
+          <div id="clinics-list" class="table-wrap"></div>
+        </section>
+        <section id="panel-packages" class="panel">
+          <h2>Услуги</h2>
+          <div id="packages-loading" class="loading">Загрузка…</div>
+          <div id="packages-list" class="table-wrap"></div>
+        </section>
+        <section id="panel-bookings" class="panel">
+          <h2>Заявки</h2>
+          <p class="hint">Все заявки на бронирование (созданные клиентами)</p>
+          <div id="bookings-loading" class="loading">Загрузка…</div>
+          <div id="bookings-list" class="table-wrap"></div>
+          <div id="bookings-more" class="more"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="/admin/app.js"></script>
+</body>
+</html>

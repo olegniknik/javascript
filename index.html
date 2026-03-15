@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Уютный дом — Установка окон и остекление балконов</title>
+  <meta name="description" content="Ремонт окон за 1 день с гарантией до 3 лет. Замена уплотнителя, стеклопакетов, регулировка фурнитуры. Бесплатный выезд мастера. г. Киселёвск.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -26,6 +27,7 @@
         <a href="#services" class="nav__link">Услуги</a>
         <a href="#reviews" class="nav__link">Отзывы</a>
         <a href="#contacts" class="nav__link">Контакты</a>
+        <button type="button" class="nav__link nav__btn" id="adminLoginBtn" data-admin-login onclick="typeof openAdminModal==='function'&&openAdminModal()" style="background:none;border:none;cursor:pointer;font:inherit;color:inherit;">Вход</button>
       </nav>
       <button class="burger" id="burger" aria-label="Меню">
         <span></span><span></span><span></span>
@@ -312,6 +314,18 @@
     </div>
   </section>
 
+  <!-- Админка (видна только после входа админа) -->
+  <section class="admin-section" id="adminSection" hidden>
+    <div class="container">
+      <div class="admin-section__head">
+        <h2 class="section-title">Заявки с сайта</h2>
+        <button type="button" class="btn btn--outline" id="adminLogoutBtn">Выйти</button>
+      </div>
+      <div id="adminLeadsLoading" class="admin-loading">Загрузка заявок…</div>
+      <div id="adminLeadsList" class="admin-table-wrap"></div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container footer__inner">
@@ -319,9 +333,33 @@
         <span class="logo"><span class="logo__icon">🏠</span> Уютный дом</span>
         <p>Установка окон и остекление балконов с 2008 года</p>
       </div>
+      <div class="footer__links">
+        <button type="button" class="footer__link" data-admin-login onclick="typeof openAdminModal==='function'&&openAdminModal()">Вход для администратора</button>
+      </div>
       <div class="footer__copy">© 2026 Уютный дом. Все права защищены.</div>
     </div>
   </footer>
+
+  <!-- Модалка входа для админа -->
+  <div class="modal" id="adminLoginModal">
+    <div class="modal__overlay"></div>
+    <div class="modal__content">
+      <button class="modal__close" aria-label="Закрыть" id="adminLoginModalClose">×</button>
+      <h2 class="modal__title">Вход для администратора</h2>
+      <form class="form" id="adminLoginForm">
+        <div class="form__group">
+          <label class="form__label" for="adminEmail">Email</label>
+          <input class="form__input" type="email" id="adminEmail" required placeholder="admin@local.test">
+        </div>
+        <div class="form__group">
+          <label class="form__label" for="adminPassword">Пароль</label>
+          <input class="form__input" type="password" id="adminPassword" required placeholder="••••••••">
+        </div>
+        <p class="form__error" id="adminLoginError"></p>
+        <button class="btn btn--primary btn--lg btn--full" type="submit">Войти</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Booking Modal -->
   <div class="modal" id="bookingModal">
@@ -363,6 +401,22 @@
     </div>
   </div>
 
+  <!-- Открытие модалки входа: работает до загрузки script.js -->
+  <script>
+  (function() {
+    function openAdminModal() {
+      var m = document.getElementById('adminLoginModal');
+      if (m) { m.classList.add('modal--active'); document.body.style.overflow = 'hidden'; }
+    }
+    window.openAdminModal = openAdminModal;
+    var btn = document.getElementById('adminLoginBtn');
+    if (btn) btn.addEventListener('click', openAdminModal);
+    document.querySelectorAll('[data-admin-login]').forEach(function(b) {
+      if (b.id !== 'adminLoginBtn') b.addEventListener('click', openAdminModal);
+    });
+    if (window.location.hash === '#admin') openAdminModal();
+  })();
+  </script>
   <script src="script.js"></script>
 </body>
 </html>

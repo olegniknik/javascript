@@ -1,0 +1,7 @@
+{
+  "name": "uyutny-dom",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}
