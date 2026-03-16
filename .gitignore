@@ -6,3 +6,9 @@ booking-scaffold/node_modules/
 booking-scaffold/dist/
 booking-scaffold/prisma/dev.db
 booking-scaffold/prisma/dev.db-journal
+booking-scaffold/.env
+
+# Playwright
+playwright-report/
+test-results/
+playwright-report-screenshot.png
