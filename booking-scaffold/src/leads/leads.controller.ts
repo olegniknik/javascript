@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -12,6 +13,7 @@ export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
   @Post()
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Оставить заявку с сайта (без авторизации)' })
   create(@Body() dto: CreateLeadDto) {
     return this.leadsService.create(dto.name, dto.phone, dto.problem);

@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminLeadsLoading.hidden = false;
     adminLeadsList.innerHTML = '';
     try {
-      const res = await fetch(API_URL + '/leads', {
+      const res = await fetch(API_URL + '/api/leads', {
         headers: { Authorization: 'Bearer ' + token },
       });
       if (res.status === 401) {
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('adminPassword').value;
       if (adminLoginError) adminLoginError.textContent = '';
       try {
-        const res = await fetch(API_URL + '/auth/login', {
+        const res = await fetch(API_URL + '/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = getAdminToken();
     if (!token || !adminSection) return;
     try {
-      const res = await fetch(API_URL + '/leads', {
+      const res = await fetch(API_URL + '/api/leads', {
         headers: { Authorization: 'Bearer ' + token },
       });
       if (res.status === 200) {
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = true;
 
       try {
-        const res = await fetch(API_URL + '/leads', {
+        const res = await fetch(API_URL + '/api/leads', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, phone, problem }),

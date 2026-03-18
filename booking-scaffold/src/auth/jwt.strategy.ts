@@ -16,10 +16,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
+    const secret = config.get<string>('JWT_SECRET');
+    if (!secret || secret.trim() === '') {
+      throw new Error('JWT_SECRET должен быть задан в .env (см. .env.example)');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') || 'default-secret-change-me',
+      secretOrKey: secret,
     });
   }
 

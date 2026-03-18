@@ -1,7 +1,7 @@
 /**
- * Минимальный сервер для ручного теста админки (без БД).
- * Запуск: node admin/server.js
- * Откройте http://localhost:3000/admin
+ * 8=8<0;L=K9 A5@25@ 4;O @CG=>3> B5AB0 04<8=:8 (157 ).
+ * 0?CA:: node admin/server.js
+ * B:@>9B5 http://localhost:3000/admin
  */
 const http = require('http');
 const fs = require('fs');
@@ -17,10 +17,10 @@ const mimes = {
   '.json': 'application/json',
 };
 
-// Мок API: логин возвращает токен, остальные — пустые данные
+// >: API: ;>38= 2>72@0I05B B>:5=, >AB0;L=K5  ?CABK5 40==K5 (?CB8 A ?@5D8:A>< /api)
 function handleApi(req, res) {
   const url = new URL(req.url || '', 'http://localhost');
-  if (req.method === 'POST' && url.pathname === '/auth/login') {
+  if (req.method === 'POST' && url.pathname === '/api/auth/login') {
     let body = '';
     req.on('data', (ch) => (body += ch));
     req.on('end', () => {
@@ -40,22 +40,22 @@ function handleApi(req, res) {
     });
     return;
   }
-  if (req.method === 'GET' && url.pathname === '/users') {
+  if (req.method === 'GET' && url.pathname === '/api/users') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ items: [{ id: '1', email: 'admin@local.test', role: 'ADMIN', isActive: true, createdAt: new Date().toISOString() }], nextCursor: null }));
     return;
   }
-  if (req.method === 'GET' && url.pathname === '/clinics') {
+  if (req.method === 'GET' && url.pathname === '/api/clinics') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify([]));
     return;
   }
-  if (req.method === 'GET' && url.pathname === '/packages') {
+  if (req.method === 'GET' && url.pathname === '/api/packages') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify([]));
     return;
   }
-  if (req.method === 'GET' && (url.pathname === '/bookings' || url.pathname.startsWith('/bookings?'))) {
+  if (req.method === 'GET' && (url.pathname === '/api/bookings' || url.pathname.startsWith('/api/bookings?'))) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ items: [], nextCursor: null }));
     return;
@@ -80,7 +80,7 @@ function serveFile(filePath, res) {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '', 'http://localhost');
-  if (url.pathname.startsWith('/auth/') || url.pathname.startsWith('/users') || url.pathname.startsWith('/clinics') || url.pathname.startsWith('/packages') || url.pathname.startsWith('/bookings')) {
+  if (url.pathname.startsWith('/api/auth/') || url.pathname.startsWith('/api/users') || url.pathname.startsWith('/api/clinics') || url.pathname.startsWith('/api/packages') || url.pathname.startsWith('/api/bookings')) {
     handleApi(req, res);
     return;
   }
@@ -99,10 +99,9 @@ const server = http.createServer((req, res) => {
     return;
   }
   res.writeHead(404);
-  res.end('Not found');
+  res.end();
 });
 
 server.listen(PORT, () => {
-  console.log('Admin test server: http://localhost:' + PORT + '/admin');
-  console.log('Login: admin@local.test / password123');
+  console.log('Admin mock server at http://localhost:' + PORT + '/admin');
 });

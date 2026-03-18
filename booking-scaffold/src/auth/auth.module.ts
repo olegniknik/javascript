@@ -11,10 +11,16 @@ import { JwtStrategy } from './jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') || 'default-secret-change-me',
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1h' },
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret || secret.trim() === '') {
+          throw new Error('JWT_SECRET должен быть задан в .env (см. .env.example)');
+        }
+        return {
+          secret,
+          signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1h' },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

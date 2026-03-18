@@ -64,7 +64,7 @@
     const email = $('login-email').value.trim();
     const password = $('login-password').value;
     try {
-      const data = await api('/auth/login', {
+      const data = await api('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
@@ -119,7 +119,7 @@
       moreEl.innerHTML = '';
     }
     try {
-      let path = '/users?limit=20';
+      let path = '/api/users?limit=20';
       if (cursor) path += '&cursor=' + encodeURIComponent(cursor);
       const data = await api(path);
       loadingEl.classList.add('hidden');
@@ -176,7 +176,7 @@
     listEl.innerHTML = '';
     loadingEl.classList.remove('hidden');
     try {
-      const data = await api('/clinics');
+      const data = await api('/api/clinics');
       loadingEl.classList.add('hidden');
       listEl.innerHTML =
         '<table><thead><tr><th>Название</th><th>Адрес</th><th>Телефон</th></tr></thead><tbody>' +
@@ -207,7 +207,7 @@
     listEl.innerHTML = '';
     loadingEl.classList.remove('hidden');
     try {
-      const data = await api('/packages');
+      const data = await api('/api/packages');
       loadingEl.classList.add('hidden');
       listEl.innerHTML =
         '<table><thead><tr><th>Название</th><th>Клиника</th><th>Цена (¢)</th><th>Длительность</th><th>Активен</th></tr></thead><tbody>' +
@@ -246,7 +246,7 @@
       moreEl.innerHTML = '';
     }
     try {
-      let path = '/bookings?limit=20';
+      let path = '/api/bookings?limit=20';
       if (cursor) path += '&cursor=' + encodeURIComponent(cursor);
       const data = await api(path);
       loadingEl.classList.add('hidden');
