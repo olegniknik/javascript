@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
-/** Данные заявки для письма */
 export interface LeadNotificationPayload {
   id: string;
   name: string;
@@ -15,73 +13,55 @@ export interface LeadNotificationPayload {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: Transporter | null = null;
+  private resend: Resend | null = null;
 
   constructor(private readonly config: ConfigService) {
-    const host = this.config.get<string>('SMTP_HOST');
-    const user = this.config.get<string>('SMTP_USER');
-    const pass = this.config.get<string>('SMTP_PASSWORD');
-    if (host && user && pass) {
-      const portRaw = this.config.get<string>('SMTP_PORT');
-      const port = portRaw ? Number(portRaw) : 587;
-      const secure = this.config.get<string>('SMTP_SECURE') === 'true';
-      this.transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        requireTLS: !secure && port === 587,
-        auth: { user, pass },
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 10000,
-      });
-      this.logger.log(`Mail (SMTP) configured: ${user} -> LEADS_EMAIL`);
+    const apiKey = this.config.get<string>('RESEND_API_KEY');
+    if (apiKey) {
+      this.resend = new Resend(apiKey);
+      this.logger.log('Mail configured via Resend HTTP API');
     } else {
-      this.logger.warn('Mail (SMTP) not configured: set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in .env');
+      this.logger.warn('RESEND_API_KEY not set — email notifications disabled');
     }
   }
 
-  /** Проверка: настроена ли отправка писем */
   isConfigured(): boolean {
-    return this.transporter !== null;
+    return this.resend !== null;
   }
 
-  /**
-   * Отправить уведомление о новой заявке на LEADS_EMAIL.
-   * Если SMTP не настроен — ничего не делаем. При ошибке отправки — логируем, не бросаем.
-   */
   async sendLeadNotification(lead: LeadNotificationPayload): Promise<void> {
-    if (!this.transporter) {
-      this.logger.debug('SMTP not configured, skip sending lead email');
+    if (!this.resend) {
+      this.logger.debug('Resend not configured, skip sending lead email');
       return;
     }
 
     const to = this.config.get<string>('LEADS_EMAIL');
-    const from = this.config.get<string>('MAIL_FROM') || this.config.get<string>('SMTP_USER');
-    if (!to || !from) {
-      this.logger.debug('LEADS_EMAIL or MAIL_FROM not set, skip sending lead email');
+    const from = this.config.get<string>('MAIL_FROM') || 'onboarding@resend.dev';
+    if (!to) {
+      this.logger.debug('LEADS_EMAIL not set, skip sending lead email');
       return;
     }
 
     const subject = `Новая заявка с сайта: ${lead.name}`;
-    const body = this.buildLeadEmailBody(lead);
+    const text = this.buildLeadEmailBody(lead);
 
-    // Логирование запроса
-    this.logger.log(`Sending lead email: to=${to}, subject=${subject}, leadId=${lead.id}`);
+    this.logger.log(`Sending lead email via Resend: to=${to}, leadId=${lead.id}`);
 
     try {
-      const result = await this.transporter.sendMail({
+      const { data, error } = await this.resend.emails.send({
         from,
-        to,
+        to: [to],
         subject,
-        text: body,
+        text,
       });
-      // Логирование ответа (успех)
-      this.logger.log(
-        `Lead email sent: leadId=${lead.id}, messageId=${result.messageId ?? 'n/a'}`,
-      );
+
+      if (error) {
+        this.logger.error(`Resend error: leadId=${lead.id}, error=${JSON.stringify(error)}`);
+        return;
+      }
+
+      this.logger.log(`Lead email sent: leadId=${lead.id}, resendId=${data?.id ?? 'n/a'}`);
     } catch (err) {
-      // Логирование ответа (ошибка) — не блокируем основное действие
       const message = err instanceof Error ? err.message : String(err);
       this.logger.error(`Lead email failed: leadId=${lead.id}, error=${message}`, err instanceof Error ? err.stack : undefined);
     }
