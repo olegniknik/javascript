@@ -6,6 +6,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { Client } from 'pg';
 import { PrismaService } from './prisma/prisma.service';
+import * as bcrypt from 'bcryptjs';
 
 @ApiTags('health')
 @Controller()
@@ -222,5 +223,27 @@ export class AppController {
     }
 
     return results;
+  }
+
+  @Get('seed-admin')
+  @ApiOperation({ summary: 'Create admin user (one-time setup)' })
+  async seedAdmin() {
+    const email = 'admin@okna-remont42.ru';
+    const password = 'Admin123!';
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      if (existing.role !== 'ADMIN') {
+        await this.prisma.user.update({ where: { email }, data: { role: 'ADMIN' } });
+        return { message: 'User existed, role updated to ADMIN', email };
+      }
+      return { message: 'Admin already exists', email };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await this.prisma.user.create({
+      data: { email, passwordHash, role: 'ADMIN' },
+    });
+    return { message: 'Admin created', email, password, note: 'CHANGE PASSWORD after first login!' };
   }
 }
