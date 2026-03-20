@@ -16,18 +16,15 @@ export class LeadsService {
       data: { name: name.trim(), phone: phone.trim(), problem: problem?.trim() },
     });
 
-    // Отправка письма не блокирует ответ: при ошибке только логируем
-    try {
-      await this.mailService.sendLeadNotification({
-        id: lead.id,
-        name: lead.name,
-        phone: lead.phone,
-        problem: lead.problem,
-        createdAt: lead.createdAt,
-      });
-    } catch (err) {
+    this.mailService.sendLeadNotification({
+      id: lead.id,
+      name: lead.name,
+      phone: lead.phone,
+      problem: lead.problem,
+      createdAt: lead.createdAt,
+    }).catch(err => {
       this.logger.error(`Lead email failed: leadId=${lead.id}`, err instanceof Error ? err.stack : String(err));
-    }
+    });
 
     return lead;
   }

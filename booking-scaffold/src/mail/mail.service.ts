@@ -29,8 +29,11 @@ export class MailService {
         host,
         port,
         secure,
-        requireTLS: !secure && port === 587, // для Яндекса на 587 — явный STARTTLS
+        requireTLS: !secure && port === 587,
         auth: { user, pass },
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
       this.logger.log(`Mail (SMTP) configured: ${user} -> LEADS_EMAIL`);
     } else {
