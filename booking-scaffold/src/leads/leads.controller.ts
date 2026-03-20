@@ -13,7 +13,7 @@ export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
   @Post()
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Оставить заявку с сайта (без авторизации)' })
   create(@Body() dto: CreateLeadDto) {
     return this.leadsService.create(dto.name, dto.phone, dto.problem);

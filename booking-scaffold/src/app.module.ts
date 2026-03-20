@@ -22,11 +22,11 @@ import { MailModule } from './mail/mail.module';
   // .env всегда из корня проекта (работает при запуске из любой директории)
   envFilePath: join(__dirname, '..', '..', '.env'),
 }),
-    ThrottlerModule.forRoot([
-      { name: 'auth', ttl: 15 * 60 * 1000, limit: 10 },   // 10 попыток за 15 мин на login/register
-      { name: 'short', ttl: 60_000, limit: 10 },
-      { name: 'long', ttl: 300_000, limit: 30 },
-    ]),
+    // ThrottlerModule.forRoot([
+    //   { name: 'auth', ttl: 15 * 60 * 1000, limit: 10 },
+    //   { name: 'short', ttl: 60_000, limit: 10 },
+    //   { name: 'long', ttl: 300_000, limit: 30 },
+    // ]),
     PrismaModule,
     MailModule,
     AuthModule,

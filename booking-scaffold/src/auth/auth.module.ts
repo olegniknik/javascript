@@ -12,13 +12,14 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
-        const secret = config.get<string>('JWT_SECRET');
-        if (!secret || secret.trim() === '') {
+        const secret = (config.get<string>('JWT_SECRET') || '').trim();
+        if (!secret) {
           throw new Error('JWT_SECRET должен быть задан в .env (см. .env.example)');
         }
+        const expiresIn = (config.get<string>('JWT_EXPIRES_IN') || '1h').trim();
         return {
           secret,
-          signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1h' },
+          signOptions: { expiresIn },
         };
       },
       inject: [ConfigService],

@@ -16,8 +16,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    const secret = config.get<string>('JWT_SECRET');
-    if (!secret || secret.trim() === '') {
+    const secret = (config.get<string>('JWT_SECRET') || '').trim();
+    if (!secret) {
       throw new Error('JWT_SECRET должен быть задан в .env (см. .env.example)');
     }
     super({
