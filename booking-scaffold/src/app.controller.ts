@@ -16,19 +16,26 @@ export class AppController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Health check' })
-  getHello(): { status: string } {
-    return { status: 'ok' };
+  @ApiOperation({ summary: 'Landing page' })
+  serveLanding(@Res() res: Response) {
+    const inDist = join(__dirname, '..', 'public', 'index.html');
+    const inRoot = join(process.cwd(), 'public', 'index.html');
+    const path = existsSync(inDist) ? inDist : inRoot;
+    if (existsSync(path)) {
+      res.sendFile(path);
+    } else {
+      res.json({ status: 'ok', landing: 'not found', tried: [inDist, inRoot] });
+    }
   }
 
   @Get('admin')
   @Get('admin/')
   @ApiOperation({ summary: 'Админ-панель' })
   serveAdmin(@Res() res: Response) {
-    // Сначала dist/admin (после nest build с assets), иначе admin в корне проекта
+    const inPublic = join(process.cwd(), 'public', 'admin', 'index.html');
     const inDist = join(__dirname, 'admin', 'index.html');
     const inRoot = join(process.cwd(), 'admin', 'index.html');
-    const path = existsSync(inDist) ? inDist : inRoot;
+    const path = existsSync(inPublic) ? inPublic : existsSync(inDist) ? inDist : inRoot;
     res.sendFile(path);
   }
 

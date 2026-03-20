@@ -10,12 +10,19 @@ export function configureApp(app: NestExpressApplication): void {
   app.setGlobalPrefix('api');
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
-  // Vercel serverless + globalPrefix: запрос на `/` может уходить мимо Nest маршрутов.
-  // Поэтому добавляем прямой ответ для корня сайта.
+  const publicInDist = join(__dirname, '..', 'public');
+  const publicInRoot = join(process.cwd(), 'public');
+  const publicPath = existsSync(join(publicInDist, 'index.html'))
+    ? publicInDist
+    : publicInRoot;
+  app.useStaticAssets(publicPath, { prefix: '/' });
+
   app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(`[DEBUG] ${req.method} ${req.path} | originalUrl: ${req.originalUrl}`);
     if (req.method === 'GET' && (req.path === '/' || req.originalUrl === '/')) {
-      console.log('[DEBUG] Responding with 200 { status: ok }');
+      const landing = join(publicPath, 'index.html');
+      if (existsSync(landing)) {
+        return res.sendFile(landing);
+      }
       return res.status(200).json({ status: 'ok' });
     }
     return next();
@@ -30,11 +37,14 @@ export function configureApp(app: NestExpressApplication): void {
     credentials: true,
   });
 
+  const adminInPublic = join(publicPath, 'admin');
   const adminInDist = join(__dirname, 'admin');
   const adminInRoot = join(process.cwd(), 'admin');
-  const adminPath = existsSync(join(adminInDist, 'index.html'))
-    ? adminInDist
-    : adminInRoot;
+  const adminPath = existsSync(join(adminInPublic, 'index.html'))
+    ? adminInPublic
+    : existsSync(join(adminInDist, 'index.html'))
+      ? adminInDist
+      : adminInRoot;
   app.useStaticAssets(adminPath, { prefix: '/admin/', index: 'index.html' });
 
   app.useGlobalPipes(
