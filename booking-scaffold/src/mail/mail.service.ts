@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
 
 export interface LeadNotificationPayload {
   id: string;
@@ -10,61 +9,113 @@ export interface LeadNotificationPayload {
   createdAt: Date;
 }
 
+const BREVO_SEND_URL = 'https://api.brevo.com/v3/smtp/email';
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private resend: Resend | null = null;
 
   constructor(private readonly config: ConfigService) {
-    const apiKey = this.config.get<string>('RESEND_API_KEY');
-    if (apiKey) {
-      this.resend = new Resend(apiKey);
-      this.logger.log('Mail configured via Resend HTTP API');
+    if (this.getBrevoApiKey()) {
+      this.logger.log('Mail configured via Brevo Transactional API');
     } else {
-      this.logger.warn('RESEND_API_KEY not set — email notifications disabled');
+      this.logger.warn('BREVO_API_KEY not set — email notifications disabled');
     }
   }
 
   isConfigured(): boolean {
-    return this.resend !== null;
+    return Boolean(this.config.get<string>('BREVO_API_KEY')?.trim());
+  }
+
+  private getBrevoApiKey(): string | undefined {
+    return this.config.get<string>('BREVO_API_KEY')?.trim();
   }
 
   async sendLeadNotification(lead: LeadNotificationPayload): Promise<void> {
-    if (!this.resend) {
-      this.logger.debug('Resend not configured, skip sending lead email');
+    const apiKey = this.getBrevoApiKey();
+    if (!apiKey) {
+      this.logger.debug('Brevo not configured, skip sending lead email');
       return;
     }
 
-    const to = this.config.get<string>('LEADS_EMAIL');
-    const from = this.config.get<string>('MAIL_FROM') || 'onboarding@resend.dev';
-    if (!to) {
-      this.logger.debug('LEADS_EMAIL not set, skip sending lead email');
+    const to = this.config.get<string>('LEADS_EMAIL')?.trim();
+    const fromEmail = this.config.get<string>('MAIL_FROM')?.trim();
+    if (!to || !fromEmail) {
+      this.logger.debug('LEADS_EMAIL or MAIL_FROM not set, skip sending lead email');
       return;
     }
+
+    const senderName =
+      this.config.get<string>('BREVO_SENDER_NAME')?.trim() || 'Заявки с сайта';
+    const { name: parsedName, email: parsedEmail } = this.parseMailFrom(fromEmail);
+    const email = parsedEmail ?? this.extractPlainEmail(fromEmail);
+    if (!email) {
+      this.logger.warn(`MAIL_FROM is not a valid email: ${fromEmail.slice(0, 80)}`);
+      return;
+    }
+    const sender = {
+      name: parsedName && parsedName.length > 0 ? parsedName : senderName,
+      email,
+    };
 
     const subject = `Новая заявка с сайта: ${lead.name}`;
-    const text = this.buildLeadEmailBody(lead);
+    const textContent = this.buildLeadEmailBody(lead);
 
-    this.logger.log(`Sending lead email via Resend: to=${to}, leadId=${lead.id}`);
+    this.logger.log(`Sending lead email via Brevo: to=${to}, leadId=${lead.id}`);
 
     try {
-      const { data, error } = await this.resend.emails.send({
-        from,
-        to: [to],
-        subject,
-        text,
+      const res = await fetch(BREVO_SEND_URL, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          'api-key': apiKey,
+        },
+        body: JSON.stringify({
+          sender,
+          to: [{ email: to }],
+          subject,
+          textContent,
+        }),
       });
 
-      if (error) {
-        this.logger.error(`Resend error: leadId=${lead.id}, error=${JSON.stringify(error)}`);
+      const raw = await res.text();
+      if (!res.ok) {
+        this.logger.error(
+          `Brevo HTTP ${res.status}: leadId=${lead.id}, body=${raw.slice(0, 500)}`,
+        );
         return;
       }
 
-      this.logger.log(`Lead email sent: leadId=${lead.id}, resendId=${data?.id ?? 'n/a'}`);
+      let messageId = 'n/a';
+      try {
+        const json = JSON.parse(raw) as { messageId?: string };
+        messageId = json.messageId ?? 'n/a';
+      } catch {
+        // ignore
+      }
+      this.logger.log(`Lead email sent: leadId=${lead.id}, messageId=${messageId}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       this.logger.error(`Lead email failed: leadId=${lead.id}, error=${message}`, err instanceof Error ? err.stack : undefined);
     }
+  }
+
+  /** "Имя <email@x.com>" или просто email */
+  private parseMailFrom(from: string): { name: string | null; email: string | null } {
+    const lt = from.indexOf('<');
+    const gt = from.indexOf('>');
+    if (lt !== -1 && gt > lt) {
+      const email = from.slice(lt + 1, gt).trim();
+      let name = from.slice(0, lt).trim().replace(/^["']|["']$/g, '');
+      return { name: name || null, email: email || null };
+    }
+    return { name: null, email: null };
+  }
+
+  private extractPlainEmail(s: string): string | null {
+    const t = s.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) ? t : null;
   }
 
   private buildLeadEmailBody(lead: LeadNotificationPayload): string {
